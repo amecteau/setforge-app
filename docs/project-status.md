@@ -35,12 +35,12 @@
 | 1.9 | Create Rust module structure | ✅ | commands/, models/, repo/, db/ with mod.rs files wired into lib.rs |
 | 1.10 | Create Rust model structs | ✅ | WorkoutSet, Workout, Exercise, UserSettings with serde camelCase |
 | 1.11 | Add Rust test feature flag | ✅ | tauri = { features = ["test"] }, rusqlite (bundled), uuid added to Cargo.toml |
-| 1.12 | Write first serialization test | 🔄 | 7 TS type smoke tests pass; Rust serialization + schema tests written, not yet run (cargo not in bash PATH) |
+| 1.12 | Write first serialization test | ✅ | 7 TS type smoke tests + 3 Rust tests (2 serialization, 1 schema) all pass |
 | 1.13 | Set up database schema | ✅ | initialize_db() in db/mod.rs creates 4 tables |
-| 1.14 | Verify all sensors pass | 🔄 | svelte-check ✅ eslint ✅ vitest ✅ (7/7) — cargo pending (resolve PATH next session) |
+| 1.14 | Verify all sensors pass | ✅ | svelte-check ✅ eslint ✅ vitest 7/7 ✅ cargo test 3/3 ✅ clippy ✅ |
 | 1.15 | Place .claude/AGENTS.md | ✅ | Pre-existing |
-| 1.16 | Place .claude/settings.json | ⬜ | Not yet created |
-| 1.17 | Place .claude/commands/ | ⬜ | Not yet created (skills handle /review /test /status /next) |
+| 1.16 | Place .claude/settings.json | ✅ | Pre-existing with allowed commands |
+| 1.17 | Place .claude/commands/ | ✅ | Pre-existing: bootstrap, done, next, review, status, test |
 | 1.18 | Place docs/ui-spec.md | ✅ | Pre-existing |
 
 **Phase 1 exit criteria**: Every sensor passes clean. `npm run dev` launches the app (blank screen is fine). `cargo test` passes with at least one serialization test. All harness files are in place.
@@ -157,7 +157,7 @@
 | Milestone | Date | Notes |
 |---|---|---|
 | Harness plan created | 2026-04-08 | AGENTS.md, ui-spec.md, project-status.md |
-| Phase 1 scaffold complete | 2026-04-09 | SvelteKit + Tauri wired; all TS sensors green; Rust code written, cargo run pending |
+| Phase 1 scaffold complete | 2026-04-10 | All sensors green: svelte-check, eslint, vitest 7/7, cargo test 3/3, clippy clean |
 
 ---
 
