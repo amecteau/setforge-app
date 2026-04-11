@@ -14,6 +14,26 @@ export default [
 			}
 		}
 	},
+	// Use TypeScript parser for .svelte.ts rune files
+	{
+		files: ['**/*.svelte.ts'],
+		languageOptions: {
+			parser: ts.parser
+		}
+	},
+	// TypeScript handles undefined-variable checking; no-undef is redundant and
+	// incorrectly flags DOM globals (Event, setTimeout, HTMLInputElement, etc.)
+	{
+		files: ['**/*.ts', '**/*.svelte.ts', '**/*.svelte'],
+		rules: {
+			'no-undef': 'off',
+			// Not using a base path in this app
+			'svelte/no-navigation-without-base': 'off',
+			'svelte/no-navigation-without-resolve': 'off',
+			// False positive: new Date().toISOString() is not a reactive Date instance
+			'svelte/prefer-svelte-reactivity': 'off'
+		}
+	},
 	{
 		rules: {
 			'no-restricted-imports': [
