@@ -1,5 +1,6 @@
 import type { Exercise, MuscleGroup } from '$lib/shared/types/exercise.js';
 import { DEFAULT_EXERCISES } from './defaultExercises.js';
+import * as exerciseService from './exercise.service.js';
 
 export function createExerciseStore() {
 	let customExercises = $state<Exercise[]>([]);
@@ -36,11 +37,18 @@ export function createExerciseStore() {
 			searchQuery = q;
 		},
 
-		addCustom(exercise: Exercise) {
+		async loadCustomExercises() {
+			const loaded = await exerciseService.getCustomExercises();
+			customExercises = loaded;
+		},
+
+		async addCustom(exercise: Exercise) {
+			await exerciseService.saveCustomExercise(exercise);
 			customExercises = [...customExercises, exercise];
 		},
 
-		removeCustom(id: string) {
+		async removeCustom(id: string) {
+			await exerciseService.deleteCustomExercise(id);
 			customExercises = customExercises.filter((e) => e.id !== id);
 		},
 

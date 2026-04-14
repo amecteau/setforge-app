@@ -1,5 +1,6 @@
 import type { WorkoutSet, WeightUnit } from '$lib/shared/types/workout.js';
 import type { Exercise } from '$lib/shared/types/exercise.js';
+import * as counterService from './counter.service.js';
 
 interface ActiveWorkout {
 	id: string;
@@ -44,8 +45,16 @@ export function createCounterStore() {
 			return exerciseSets.length + 1;
 		},
 
-		startWorkout() {
-			workout = { id: crypto.randomUUID(), startedAt: new Date().toISOString(), sets: [] };
+		async startWorkout() {
+			const id = crypto.randomUUID();
+			const date = new Date().toISOString().slice(0, 10);
+			await counterService.startWorkout(id, date);
+			workout = { id, startedAt: new Date().toISOString(), sets: [] };
+		},
+
+		/** Resume an existing workout loaded from the backend. */
+		resumeWorkout(w: { id: string; startedAt: string; sets: WorkoutSet[] }) {
+			workout = w;
 		},
 
 		setExercise(exercise: Exercise) {
@@ -73,7 +82,7 @@ export function createCounterStore() {
 			weightUnit = unit;
 		},
 
-		saveSet(): StoreResult {
+		async saveSet(): Promise<StoreResult> {
 			if (!workout || !currentExercise) return { success: false, error: 'No active workout' };
 			if (repCount === 0) return { success: false, error: 'Add some reps first' };
 
@@ -86,6 +95,8 @@ export function createCounterStore() {
 				timestamp: new Date().toISOString(),
 				notes: ''
 			};
+
+			await counterService.saveSet(workout.id, set);
 			workout = { ...workout, sets: [...workout.sets, set] };
 			repCount = 0;
 			return { success: true };
@@ -96,11 +107,14 @@ export function createCounterStore() {
 			workout = { ...workout, sets: workout.sets.slice(0, -1) };
 		},
 
-		finishWorkout(): StoreResult {
+		async finishWorkout(): Promise<StoreResult> {
 			if (!workout) return { success: false, error: 'No active workout' };
 			if (workout.sets.length === 0) {
 				return { success: false, error: 'No sets recorded. Discard workout?' };
 			}
+			const startedMs = new Date(workout.startedAt).getTime();
+			const durationMinutes = Math.round((Date.now() - startedMs) / 60_000);
+			await counterService.finishWorkout(workout.id, durationMinutes);
 			workout = null;
 			currentExercise = null;
 			repCount = 0;
@@ -108,7 +122,11 @@ export function createCounterStore() {
 			return { success: true };
 		},
 
-		discardWorkout() {
+		async discardWorkout() {
+			if (workout) {
+				// Mark as finished with 0 duration so it won't show as incomplete on resume
+				await counterService.finishWorkout(workout.id, 0);
+			}
 			workout = null;
 			currentExercise = null;
 			repCount = 0;

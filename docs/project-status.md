@@ -86,19 +86,19 @@
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 3.1 | Implement Rust workout repo | ⬜ | save_workout, save_set, get_workouts, get_sets |
-| 3.2 | Implement Rust exercise repo | ⬜ | save_custom_exercise, get_custom_exercises, delete_custom_exercise |
-| 3.3 | Implement Rust settings repo | ⬜ | save_settings, get_settings |
-| 3.4 | Implement Tauri commands | ⬜ | Thin wrappers calling repo functions |
-| 3.5 | Write Rust repo tests | ⬜ | All CRUD operations with in-memory SQLite |
-| 3.6 | Write Rust serialization tests | ⬜ | All models round-trip correctly |
-| 3.7 | Create frontend service files | ⬜ | workout.service.ts, exercise.service.ts, settings.service.ts |
-| 3.8 | Wire stores to services | ⬜ | counterStore → workout.service, exerciseStore → exercise.service |
-| 3.9 | Implement workout resume | ⬜ | Detect incomplete workout on launch, prompt to resume |
-| 3.10 | Implement settings persistence | ⬜ | Font scale, weight unit, last exercise saved/loaded |
-| 3.11 | Write service tests with mocked invoke | ⬜ | All service functions |
-| 3.12 | Manual integration test | ⬜ | Start workout → count reps → save sets → close app → reopen → verify data |
-| 3.13 | Verify all sensors pass | ⬜ | Full workflow checklist (frontend + backend) |
+| 3.1 | Implement Rust workout repo | ✅ | save_workout, finish_workout, save_set, get_workouts, get_incomplete_workout, delete_workout |
+| 3.2 | Implement Rust exercise repo | ✅ | save_custom_exercise, get_custom_exercises, delete_custom_exercise |
+| 3.3 | Implement Rust settings repo | ✅ | save_settings, get_settings; key-value upsert |
+| 3.4 | Implement Tauri commands | ✅ | Thin wrappers in commands/; DbConn state in lib.rs; DB opens at app data dir |
+| 3.5 | Write Rust repo tests | ✅ | 15 repo tests (7 workout, 4 exercise, 4 settings) + 3 existing = 18 total |
+| 3.6 | Write Rust serialization tests | ✅ | Covered by existing workout model tests from Phase 1 |
+| 3.7 | Create frontend service files | ✅ | counter.service.ts, exercise.service.ts, settings.service.ts |
+| 3.8 | Wire stores to services | ✅ | All stores call services; async startWorkout/saveSet/finish/discard |
+| 3.9 | Implement workout resume | ✅ | getIncompleteWorkout on mount; Resume / Start Fresh dialog |
+| 3.10 | Implement settings persistence | ✅ | load() on startup, persist() on change via $effect in layout |
+| 3.11 | Write service tests with mocked invoke | ✅ | 14 service tests across 3 service files |
+| 3.12 | Manual integration test | ⬜ | Run tauri dev and verify end-to-end |
+| 3.13 | Verify all sensors pass | ✅ | svelte-check ✅ eslint ✅ vitest 97/97 ✅ cargo test 18/18 ✅ clippy ✅ |
 
 **Phase 3 exit criteria**: All workout data persists across app restarts. Settings persist. Workout resume works. All Rust tests pass.
 
@@ -184,3 +184,4 @@
 | 2026-04-10 | Added `/// <reference types="@testing-library/jest-dom" />` to test-setup.ts | jest-dom matchers not recognized by svelte-check without this type reference |
 | 2026-04-10 | Added ESLint rules: no-undef off for TS files; prefer-svelte-reactivity off; no-navigation-without-resolve off | no-undef is redundant in TS; prefer-svelte-reactivity false-positives on new Date().toISOString(); nav rule not applicable without base path |
 | 2026-04-10 | Added ESLint parser config for `*.svelte.ts` files (TypeScript parser) | Default ESLint config treats .svelte.ts as plain JS, failing on import type syntax |
+| 2026-04-10 | Use `$app/state` not `$app/stores` for page; access as `page.url.pathname` not `$page` | `$app/stores` deprecated in SvelteKit Svelte 5 mode; state object is not a store |

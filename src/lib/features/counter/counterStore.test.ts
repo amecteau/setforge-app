@@ -1,4 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock the service so tests don't need a real Tauri backend
+vi.mock('./counter.service.js', () => ({
+	startWorkout: vi.fn().mockResolvedValue(undefined),
+	finishWorkout: vi.fn().mockResolvedValue(undefined),
+	saveSet: vi.fn().mockResolvedValue(undefined),
+	getWorkouts: vi.fn().mockResolvedValue([]),
+	getIncompleteWorkout: vi.fn().mockResolvedValue(null),
+	deleteWorkout: vi.fn().mockResolvedValue(undefined)
+}));
+
 import { createCounterStore } from './counterStore.svelte.js';
 import type { Exercise } from '$lib/shared/types/exercise.js';
 
@@ -24,9 +35,9 @@ describe('counterStore', () => {
 		expect(store.sets).toHaveLength(0);
 	});
 
-	it('startWorkout creates a workout', () => {
+	it('startWorkout creates a workout', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		expect(store.workout).not.toBeNull();
 		expect(store.workout?.sets).toHaveLength(0);
 	});
@@ -53,48 +64,48 @@ describe('counterStore', () => {
 		expect(store.repCount).toBe(0);
 	});
 
-	it('saveSet with 0 reps returns an error', () => {
+	it('saveSet with 0 reps returns an error', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
-		const result = store.saveSet();
+		const result = await store.saveSet();
 		expect(result.success).toBe(false);
 		expect(result.error).toContain('reps');
 	});
 
-	it('saveSet adds to sets and resets repCount', () => {
+	it('saveSet adds to sets and resets repCount', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		store.increment();
 		store.increment();
 		store.increment();
-		const result = store.saveSet();
+		const result = await store.saveSet();
 		expect(result.success).toBe(true);
 		expect(store.sets).toHaveLength(1);
 		expect(store.sets[0].reps).toBe(3);
 		expect(store.repCount).toBe(0);
 	});
 
-	it('saveSet records weight and unit', () => {
+	it('saveSet records weight and unit', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		store.setWeight(135);
 		store.setUnit('lb');
 		store.increment();
-		store.saveSet();
+		await store.saveSet();
 		expect(store.sets[0].weight).toBe(135);
 		expect(store.sets[0].unit).toBe('lb');
 	});
 
-	it('setNumber reflects current exercise sets', () => {
+	it('setNumber reflects current exercise sets', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		expect(store.setNumber).toBe(1);
 		store.increment();
-		store.saveSet();
+		await store.saveSet();
 		expect(store.setNumber).toBe(2);
 	});
 
@@ -106,54 +117,54 @@ describe('counterStore', () => {
 		expect(store.repCount).toBe(0);
 	});
 
-	it('setNumber resets when exercise changes', () => {
+	it('setNumber resets when exercise changes', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		store.increment();
-		store.saveSet();
+		await store.saveSet();
 		store.setExercise(squat);
 		expect(store.setNumber).toBe(1);
 	});
 
-	it('undoLastSet removes the most recent set', () => {
+	it('undoLastSet removes the most recent set', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		store.increment();
-		store.saveSet();
+		await store.saveSet();
 		store.increment();
 		store.increment();
-		store.saveSet();
+		await store.saveSet();
 		expect(store.sets).toHaveLength(2);
 		store.undoLastSet();
 		expect(store.sets).toHaveLength(1);
 	});
 
-	it('finishWorkout with no sets returns error', () => {
+	it('finishWorkout with no sets returns error', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
-		const result = store.finishWorkout();
+		await store.startWorkout();
+		const result = await store.finishWorkout();
 		expect(result.success).toBe(false);
 		expect(result.error).toContain('No sets');
 	});
 
-	it('finishWorkout with sets clears the workout', () => {
+	it('finishWorkout with sets clears the workout', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
+		await store.startWorkout();
 		store.setExercise(benchPress);
 		store.increment();
-		store.saveSet();
-		const result = store.finishWorkout();
+		await store.saveSet();
+		const result = await store.finishWorkout();
 		expect(result.success).toBe(true);
 		expect(store.workout).toBeNull();
 		expect(store.repCount).toBe(0);
 	});
 
-	it('discardWorkout clears the workout immediately', () => {
+	it('discardWorkout clears the workout immediately', async () => {
 		const store = createCounterStore();
-		store.startWorkout();
-		store.discardWorkout();
+		await store.startWorkout();
+		await store.discardWorkout();
 		expect(store.workout).toBeNull();
 	});
 

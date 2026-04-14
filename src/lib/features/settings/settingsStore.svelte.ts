@@ -1,6 +1,7 @@
 import type { FontScale } from '$lib/shared/types/settings.js';
 import type { WeightUnit } from '$lib/shared/types/workout.js';
 import { FONT_SCALE_VALUES } from '$lib/shared/types/settings.js';
+import * as settingsService from './settings.service.js';
 
 const SCALES: FontScale[] = ['small', 'medium', 'large', 'extraLarge'];
 
@@ -8,6 +9,12 @@ export function createSettingsStore() {
 	let fontScale = $state<FontScale>('medium');
 	let weightUnit = $state<WeightUnit>('lb');
 	let lastExerciseId = $state<string | null>(null);
+
+	function applyFontScale(scale: FontScale) {
+		if (typeof document !== 'undefined') {
+			document.documentElement.style.fontSize = `${FONT_SCALE_VALUES[scale]}px`;
+		}
+	}
 
 	return {
 		get fontScale() {
@@ -22,9 +29,7 @@ export function createSettingsStore() {
 
 		setFontScale(scale: FontScale) {
 			fontScale = scale;
-			if (typeof document !== 'undefined') {
-				document.documentElement.style.fontSize = `${FONT_SCALE_VALUES[scale]}px`;
-			}
+			applyFontScale(scale);
 		},
 
 		increase() {
@@ -43,6 +48,24 @@ export function createSettingsStore() {
 
 		setLastExerciseId(id: string | null) {
 			lastExerciseId = id;
+		},
+
+		async load() {
+			const saved = await settingsService.getSettings();
+			if (saved) {
+				fontScale = saved.fontScale as FontScale;
+				weightUnit = saved.weightUnit as WeightUnit;
+				lastExerciseId = saved.lastExerciseId;
+				applyFontScale(fontScale);
+			}
+		},
+
+		async persist() {
+			await settingsService.saveSettings({
+				fontScale,
+				weightUnit,
+				lastExerciseId
+			});
 		}
 	};
 }

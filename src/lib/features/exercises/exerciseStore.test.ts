@@ -1,4 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('./exercise.service.js', () => ({
+	saveCustomExercise: vi.fn().mockResolvedValue(undefined),
+	getCustomExercises: vi.fn().mockResolvedValue([]),
+	deleteCustomExercise: vi.fn().mockResolvedValue(undefined)
+}));
+
 import { createExerciseStore } from './exerciseStore.svelte.js';
 import { DEFAULT_EXERCISES } from './defaultExercises.js';
 import type { Exercise } from '$lib/shared/types/exercise.js';
@@ -55,23 +62,23 @@ describe('exerciseStore', () => {
 		expect(store.getById('does-not-exist')).toBeNull();
 	});
 
-	it('addCustom includes the new exercise', () => {
+	it('addCustom includes the new exercise', async () => {
 		const store = createExerciseStore();
-		store.addCustom(customExercise);
+		await store.addCustom(customExercise);
 		expect(store.allExercises.some((e) => e.id === 'custom-1')).toBe(true);
 	});
 
-	it('addCustom exercise appears in filtered results when matching query', () => {
+	it('addCustom exercise appears in filtered results when matching query', async () => {
 		const store = createExerciseStore();
-		store.addCustom(customExercise);
+		await store.addCustom(customExercise);
 		store.setSearchQuery('cable');
 		expect(store.exercises.some((e) => e.id === 'custom-1')).toBe(true);
 	});
 
-	it('removeCustom removes the exercise', () => {
+	it('removeCustom removes the exercise', async () => {
 		const store = createExerciseStore();
-		store.addCustom(customExercise);
-		store.removeCustom('custom-1');
+		await store.addCustom(customExercise);
+		await store.removeCustom('custom-1');
 		expect(store.allExercises.some((e) => e.id === 'custom-1')).toBe(false);
 	});
 
