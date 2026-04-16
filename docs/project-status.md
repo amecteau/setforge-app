@@ -185,11 +185,11 @@ Workflow runs on `v*` tag push only. To release: `git tag v0.1.0 && git push ori
 | 6.2 | ~~Initialize Tauri Android target locally~~ | ✅ | Skipped — Android SDK not installed locally. CI job runs `npx tauri android init` before building instead. |
 | 6.3 | Add Android Rust targets | ✅ | Created `rust-toolchain.toml` with stable channel + 4 Android targets. |
 | 6.4 | Local Windows build test | ✅ | `Rep Counter_0.1.0_x64_en-US.msi` + `Rep Counter_0.1.0_x64-setup.exe` produced. Fixed adapter-auto → adapter-static (fallback: index.html) required for Tauri static output. |
-| 6.5 | Create `.github/workflows/release.yml` | ⬜ | Single workflow file: two parallel build jobs + one release job. Triggers on `v*` tags. |
-| 6.6 | Windows CI job | ⬜ | `windows-latest`: checkout → Node → Rust stable → `npm ci` → `npx tauri build` → upload `.msi` + `.exe`. |
-| 6.7 | Android CI job | ⬜ | `ubuntu-latest`: checkout → Node → Java 17 → Android SDK → Rust + Android targets → `npm ci` → `npx tauri android build --apk` → upload `.apk`. Android build verified in CI only. |
-| 6.8 | Release job | ⬜ | Depends on both build jobs. Downloads all artifacts, uses `softprops/action-gh-release` to publish release with files attached. |
-| 6.9 | Version sync script | ⬜ | Small script so `npm version patch/minor/major` also updates `tauri.conf.json` version field, keeping tag and app version in sync. |
+| 6.5 | Create `.github/workflows/release.yml` | ✅ | Single workflow file with all three jobs. Triggers on `v*` tags. |
+| 6.6 | Windows CI job | ✅ | `windows-latest`: checkout → Node → Rust stable → `npm ci` → `npx tauri build` → upload `.msi` + `.exe`. |
+| 6.7 | Android CI job | ✅ | `ubuntu-latest`: checkout → Node → Java 17 → Android SDK → NDK 27.2 → Rust + 4 targets → `npm ci` → `npx tauri android init` → `npx tauri android build --apk` → upload `.apk`. |
+| 6.8 | Release job | ✅ | Depends on both build jobs. Downloads all artifacts, uses `softprops/action-gh-release@v2` with `generate_release_notes: true`. |
+| 6.9 | Version sync script | ✅ | `scripts/version-sync.mjs` wired to npm `version` hook. Syncs `tauri.conf.json` version and stages it in the same commit. |
 | 6.10 | Test workflow end-to-end | ⬜ | Push `v0.1.0` tag. Verify both artifacts appear on GitHub Releases page. |
 | 6.11 | Add release badge to README | ⬜ | One-line markdown badge linking to latest release so users can find the download from the repo home page. |
 
