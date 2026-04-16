@@ -184,7 +184,7 @@ Workflow runs on `v*` tag push only. To release: `git tag v0.1.0 && git push ori
 | 6.1 | Fix `tauri.conf.json` identifier | ✅ | Changed `com.tauri.dev` → `io.github.amecteau.repcounter`. |
 | 6.2 | ~~Initialize Tauri Android target locally~~ | ✅ | Skipped — Android SDK not installed locally. CI job runs `npx tauri android init` before building instead. |
 | 6.3 | Add Android Rust targets | ✅ | Created `rust-toolchain.toml` with stable channel + 4 Android targets. |
-| 6.4 | Local Windows build test | ⬜ | Run `npx tauri build` locally. Verify `.msi` + `.exe` appear in `src-tauri/target/release/bundle/`. |
+| 6.4 | Local Windows build test | ✅ | `Rep Counter_0.1.0_x64_en-US.msi` + `Rep Counter_0.1.0_x64-setup.exe` produced. Fixed adapter-auto → adapter-static (fallback: index.html) required for Tauri static output. |
 | 6.5 | Create `.github/workflows/release.yml` | ⬜ | Single workflow file: two parallel build jobs + one release job. Triggers on `v*` tags. |
 | 6.6 | Windows CI job | ⬜ | `windows-latest`: checkout → Node → Rust stable → `npm ci` → `npx tauri build` → upload `.msi` + `.exe`. |
 | 6.7 | Android CI job | ⬜ | `ubuntu-latest`: checkout → Node → Java 17 → Android SDK → Rust + Android targets → `npm ci` → `npx tauri android build --apk` → upload `.apk`. Android build verified in CI only. |
