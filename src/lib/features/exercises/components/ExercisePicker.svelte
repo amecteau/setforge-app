@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Exercise, MuscleGroup } from '$lib/shared/types/exercise.js';
+	import { focusTrap } from '$lib/shared/utils/focusTrap.js';
 
 	let {
 		exercises,
@@ -50,6 +51,7 @@
 	role="dialog"
 	aria-label="Select exercise"
 	aria-modal="true"
+	use:focusTrap={{ onEscape: onCancel }}
 	class="fixed inset-0 z-50 flex flex-col bg-zinc-950"
 >
 	<!-- Search bar -->

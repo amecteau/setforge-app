@@ -20,7 +20,7 @@
 		onclick={onDecrease}
 		disabled={atMin}
 		aria-label="Decrease font size"
-		class="flex h-9 w-9 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
+		class="flex h-11 w-11 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
 	>
 		A−
 	</button>
@@ -28,7 +28,7 @@
 		onclick={onIncrease}
 		disabled={atMax}
 		aria-label="Increase font size"
-		class="flex h-9 w-9 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
+		class="flex h-11 w-11 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
 	>
 		A+
 	</button>

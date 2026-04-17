@@ -88,6 +88,20 @@ describe('ExercisePicker', () => {
 		expect(onCancel).toHaveBeenCalledOnce();
 	});
 
+	it('calls onCancel when Escape is pressed', async () => {
+		const user = userEvent.setup();
+		const onCancel = vi.fn();
+		render(ExercisePicker, {
+			exercises,
+			searchQuery: '',
+			onSelect: vi.fn(),
+			onSearch: vi.fn(),
+			onCancel
+		});
+		await user.keyboard('{Escape}');
+		expect(onCancel).toHaveBeenCalledOnce();
+	});
+
 	it('groups exercises under muscle group headings', () => {
 		render(ExercisePicker, {
 			exercises,

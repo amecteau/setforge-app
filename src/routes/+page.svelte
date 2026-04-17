@@ -9,6 +9,7 @@
 	import ExercisePicker from '$lib/features/exercises/components/ExercisePicker.svelte';
 	import type { Workout } from '$lib/shared/types/workout.js';
 	import { createKeyboardHandler } from '$lib/features/counter/keyboardShortcuts.js';
+	import { focusTrap } from '$lib/shared/utils/focusTrap.js';
 
 	let showPicker = $state(false);
 	let saveError = $state<string | null>(null);
@@ -85,9 +86,10 @@
 <!-- Resume prompt -->
 {#if resumeWorkout && !counterStore.workout}
 	<div
-		role="dialog"
+		role="alertdialog"
 		aria-label="Resume workout"
 		aria-modal="true"
+		use:focusTrap
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
 	>
 		<div class="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-center">
@@ -143,6 +145,7 @@
 		<button
 			onclick={() => (showPicker = true)}
 			aria-label="Select exercise"
+			aria-haspopup="dialog"
 			class="flex h-14 w-full items-center justify-between rounded-xl bg-zinc-900 px-4 text-left active:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
 		>
 			<span class="truncate font-medium text-white">
@@ -209,6 +212,7 @@
 			role="dialog"
 			aria-label="No sets recorded"
 			aria-modal="true"
+			use:focusTrap={{ onEscape: () => { showDiscardDialog = false; } }}
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
 		>
 			<div class="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-center">

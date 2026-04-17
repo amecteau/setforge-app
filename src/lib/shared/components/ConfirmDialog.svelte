@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { focusTrap } from '$lib/shared/utils/focusTrap.js';
+
 	let {
 		message,
 		confirmLabel = 'Confirm',
@@ -16,6 +18,7 @@
 	role="dialog"
 	aria-label={message}
 	aria-modal="true"
+	use:focusTrap={{ onEscape: onCancel }}
 	class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
 >
 	<div class="w-full max-w-sm rounded-2xl bg-zinc-900 p-6 text-center">

@@ -11,13 +11,16 @@
 		children?: Snippet;
 	} = $props();
 
+	const ACTION_WIDTH = 80;
+	const THRESHOLD = 50;
+
 	let revealed = $state(false);
 	let dragging = $state(false);
+	let keyboardRevealed = $state(false);
 	let startX = 0;
 	let currentX = $state(0);
 
-	const ACTION_WIDTH = 80;
-	const THRESHOLD = 50;
+	const effectiveTranslateX = $derived(keyboardRevealed ? -ACTION_WIDTH : currentX);
 
 	function onPointerDown(e: PointerEvent) {
 		startX = e.clientX;
@@ -64,6 +67,8 @@
 	>
 		<button
 			onclick={handleAction}
+			onfocus={() => { keyboardRevealed = true; }}
+			onblur={() => { keyboardRevealed = false; }}
 			aria-label={actionLabel}
 			class="h-full w-full text-sm font-semibold text-white"
 		>
@@ -74,7 +79,7 @@
 	<!-- Swipeable content layer -->
 	<div
 		role="presentation"
-		style="transform: translateX({currentX}px); transition: {dragging
+		style="transform: translateX({effectiveTranslateX}px); transition: {dragging
 			? 'none'
 			: 'transform 0.2s ease-out'}"
 		onpointerdown={onPointerDown}

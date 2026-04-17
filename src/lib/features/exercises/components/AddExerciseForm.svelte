@@ -55,7 +55,6 @@
 				bind:value={name}
 				placeholder="e.g. Cable Fly"
 				maxlength={50}
-				aria-label="Exercise name"
 				class="h-11 w-full rounded-lg bg-zinc-900 px-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
 			/>
 		</div>
@@ -66,7 +65,6 @@
 			<select
 				id="muscle-group"
 				bind:value={muscleGroup}
-				aria-label="Muscle group"
 				class="h-11 w-full rounded-lg bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
 			>
 				{#each MUSCLE_GROUPS as g (g.value)}

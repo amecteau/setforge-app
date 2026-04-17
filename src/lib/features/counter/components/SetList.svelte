@@ -38,7 +38,7 @@
 					<button
 						onclick={() => onUndo(i)}
 						aria-label={`Undo set ${i + 1}`}
-						class="ml-3 rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-white active:bg-zinc-700"
+						class="ml-3 flex min-h-[2.75rem] min-w-[3rem] items-center justify-center rounded px-3 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-white active:bg-zinc-700"
 					>
 						Undo
 					</button>

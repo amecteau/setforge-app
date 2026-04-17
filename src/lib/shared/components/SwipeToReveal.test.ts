@@ -21,4 +21,14 @@ describe('SwipeToReveal', () => {
 		render(SwipeToReveal, { actionLabel: 'Remove', onAction: vi.fn() });
 		expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
 	});
+
+	it('action button can be activated via keyboard', async () => {
+		const user = userEvent.setup();
+		const onAction = vi.fn();
+		render(SwipeToReveal, { actionLabel: 'Delete', onAction });
+		const btn = screen.getByRole('button', { name: 'Delete' });
+		btn.focus();
+		await user.keyboard('{Enter}');
+		expect(onAction).toHaveBeenCalledOnce();
+	});
 });
