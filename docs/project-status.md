@@ -190,8 +190,10 @@ Workflow runs on `v*` tag push only. To release: `git tag v0.1.0 && git push ori
 | 6.7 | Android CI job | ✅ | `ubuntu-latest`: checkout → Node → Java 17 → Android SDK → NDK 27.2 → Rust + 4 targets → `npm ci` → `npx tauri android init` → `npx tauri android build --apk` → upload `.apk`. |
 | 6.8 | Release job | ✅ | Depends on both build jobs. Downloads all artifacts, uses `softprops/action-gh-release@v2` with `generate_release_notes: true`. |
 | 6.9 | Version sync script | ✅ | `scripts/version-sync.mjs` wired to npm `version` hook. Syncs `tauri.conf.json` version and stages it in the same commit. |
-| 6.10 | Test workflow end-to-end | ⬜ | Push `v0.1.0` tag. Verify both artifacts appear on GitHub Releases page. |
-| 6.11 | Add release badge to README | ⬜ | One-line markdown badge linking to latest release so users can find the download from the repo home page. |
+| 6.10 | Test workflow end-to-end | ✅ | Push `v0.1.0` tag. Verify both artifacts appear on GitHub Releases page. |
+| 6.11 | Add release badge to README | ✅ | Rewrote default SvelteKit README with project info, shields.io release badge, download table, and release instructions. |
+| 6.12 | Android APK signing — Step 1: debug build | 🔄 | Change CI step to `npx tauri android build --apk --debug` to confirm APK installs on device (debug builds are auto-signed). Verifies signing is the root cause of "App not installed" on Samsung S25. |
+| 6.13 | Android APK signing — Step 2: release keystore | ⬜ | Generate keystore locally: `keytool -genkey -v -keystore release.keystore -alias setforge -keyalg RSA -keysize 2048 -validity 10000`. Add 4 GitHub secrets: `ANDROID_KEYSTORE` (base64), `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`. Decode keystore in CI before build step. Configure signing block in `src-tauri/gen/android/app/build.gradle`. Switch workflow back to release APK. |
 
 **Phase 6 exit criteria**: Pushing a `v*` tag produces a GitHub Release with a Windows installer and Android APK attached, downloadable via a public link on the repo Releases page.
 

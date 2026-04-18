@@ -68,7 +68,7 @@ jobs:
         run: npx tauri android init
 
       - name: Build APK
-        run: npx tauri android build --apk
+        run: npx tauri android build --apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v7.0.1

@@ -1,42 +1,33 @@
-# sv
+# SetForge
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A gym rep counter desktop and mobile app.
 
-## Creating a project
+[![Latest Release](https://img.shields.io/github/v/release/amecteau/setforge-app)](https://github.com/amecteau/setforge-app/releases/latest)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Download
 
-```sh
-# create a new project
-npx sv create my-app
-```
+Get the latest installer or APK from the [Releases page](https://github.com/amecteau/setforge-app/releases/latest).
 
-To recreate this project with the same configuration:
+| Platform | File |
+|----------|------|
+| Windows | `SetForge_x.x.x_x64-setup.exe` (NSIS installer) |
+| Android | `SetForge.apk` |
 
-```sh
-# recreate this project
-npx sv@0.15.0 create --template minimal --types ts --install npm .
-```
+## Development
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Built with [Tauri v2](https://tauri.app) + [SvelteKit](https://svelte.dev).
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm install
+npm run dev       # SvelteKit dev server
+npx tauri dev     # Tauri desktop app
 ```
 
-## Building
+## Releasing
 
-To create a production version of your app:
+Push a version tag to trigger the GitHub Actions build:
 
 ```sh
-npm run build
+npm version patch   # bumps package.json + tauri.conf.json
+git push origin main --follow-tags
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
