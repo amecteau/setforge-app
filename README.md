@@ -11,7 +11,7 @@ Get the latest installer or APK from the [Releases page](https://github.com/amec
 | Platform | File |
 |----------|------|
 | Windows | `SetForge_x.x.x_x64-setup.exe` (NSIS installer) |
-| Android | `SetForge.apk` |
+| Android | `setforge-vX.X.X-universal.apk` |
 
 ## Development
 

@@ -70,6 +70,11 @@ jobs:
       - name: Build APK
         run: npx tauri android build --apk --debug
 
+      - name: Rename APK
+        run: |
+          APK=$(find src-tauri/gen/android/app/build/outputs/apk -name "*.apk" | head -n 1)
+          mv "$APK" "$(dirname "$APK")/setforge-${{ github.ref_name }}-universal.apk"
+
       - name: Upload APK
         uses: actions/upload-artifact@v7.0.1
         with:

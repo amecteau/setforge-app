@@ -41,7 +41,7 @@
 
 <div class="flex h-screen flex-col bg-[#0a0a0a] text-white">
 	<!-- Top bar -->
-	<header class="flex shrink-0 items-center justify-between border-b border-zinc-800 px-4 py-2">
+	<header class="flex shrink-0 items-center justify-between border-b border-zinc-800 px-4 py-2" style="padding-top: max(0.5rem, env(safe-area-inset-top))">
 		<span class="text-sm font-medium text-zinc-400">Rep Counter</span>
 		<FontScaleControl
 			fontScale={settingsStore.fontScale}
@@ -59,6 +59,8 @@
 		{/key}
 	</main>
 
-	<!-- Bottom navigation -->
-	<BottomNav currentPath={page.url.pathname} />
+	<!-- Bottom navigation — pb accounts for Android gesture/soft nav bar -->
+	<div style="padding-bottom: env(safe-area-inset-bottom)">
+		<BottomNav currentPath={page.url.pathname} />
+	</div>
 </div>
