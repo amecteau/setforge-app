@@ -15,21 +15,18 @@
 	const atMax = $derived(fontScale === 'extraLarge');
 </script>
 
+<style>
+	@reference "tailwindcss";
+	.scale-btn {
+		@apply flex h-11 w-11 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30;
+	}
+</style>
+
 <div class="flex items-center gap-1">
-	<button
-		onclick={onDecrease}
-		disabled={atMin}
-		aria-label="Decrease font size"
-		class="flex h-11 w-11 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
-	>
+	<button onclick={onDecrease} disabled={atMin} aria-label="Decrease font size" class="scale-btn">
 		A−
 	</button>
-	<button
-		onclick={onIncrease}
-		disabled={atMax}
-		aria-label="Increase font size"
-		class="flex h-11 w-11 items-center justify-center rounded text-sm text-zinc-400 hover:text-white disabled:opacity-30"
-	>
+	<button onclick={onIncrease} disabled={atMax} aria-label="Increase font size" class="scale-btn">
 		A+
 	</button>
 </div>

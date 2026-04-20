@@ -55,16 +55,11 @@
 <div class="flex flex-col gap-2">
 	{#each [...grouped.entries()].filter(([, exs]) => exs.length > 0) as [group, groupExercises] (group)}
 		<section>
-			<h2 class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-				{MUSCLE_GROUP_LABELS[group]}
-			</h2>
+			<h2 class="section-heading mb-1 px-1">{MUSCLE_GROUP_LABELS[group]}</h2>
 			<ul class="flex flex-col gap-1">
 				{#each groupExercises as exercise (exercise.id)}
 					<li>
-						<button
-							onclick={() => onSelect(exercise)}
-							class="flex h-12 w-full items-center rounded-lg bg-zinc-900 px-4 text-left text-sm text-white hover:bg-zinc-800 active:bg-zinc-700"
-						>
+						<button onclick={() => onSelect(exercise)} class="exercise-btn">
 							{exercise.name}
 						</button>
 					</li>
@@ -75,9 +70,7 @@
 
 	{#if custom.length > 0}
 		<section>
-			<h2 class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-				Custom
-			</h2>
+			<h2 class="section-heading mb-1 px-1">Custom</h2>
 			<ul class="flex flex-col gap-1">
 				{#each custom as exercise (exercise.id)}
 					<li>
@@ -85,10 +78,7 @@
 							actionLabel="Delete {exercise.name}"
 							onAction={() => (pendingDeleteId = exercise.id)}
 						>
-							<button
-								onclick={() => onSelect(exercise)}
-								class="flex h-12 w-full items-center rounded-lg bg-zinc-900 px-4 text-left text-sm text-white hover:bg-zinc-800 active:bg-zinc-700"
-							>
+							<button onclick={() => onSelect(exercise)} class="exercise-btn">
 								{exercise.name}
 							</button>
 						</SwipeToReveal>
@@ -98,6 +88,16 @@
 		</section>
 	{/if}
 </div>
+
+<style>
+	@reference "tailwindcss";
+	.section-heading {
+		@apply text-xs font-semibold uppercase tracking-wider text-zinc-500;
+	}
+	.exercise-btn {
+		@apply flex h-12 w-full items-center rounded-lg bg-zinc-900 px-4 text-left text-sm text-white hover:bg-zinc-800 active:bg-zinc-700;
+	}
+</style>
 
 {#if pendingDeleteId}
 	<ConfirmDialog

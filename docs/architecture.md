@@ -221,9 +221,10 @@ Triggers on **every push to any branch** (not tags). Runs unit tests only.
 ```
 push to branch
     └── test (ubuntu-latest)
+            ├── apt-get install libwebkit2gtk-4.1-dev ...  ← Tauri native deps
             ├── npm ci
-            ├── npx vitest run        ← frontend tests
-            └── cd src-tauri && cargo test  ← Rust tests
+            ├── npx vitest run                             ← frontend tests
+            └── cd src-tauri && cargo test --lib           ← Rust lib tests
 ```
 
 Purpose: catch regressions fast on every commit. ubuntu-latest is the fastest and cheapest runner for pure test work.
@@ -251,6 +252,8 @@ push v* tag
 | `release.yml` always re-runs its own `test` job | A direct tag push (bypassing a branch push) still can't skip tests |
 | Tests run on `ubuntu-latest` in both workflows | ubuntu is faster and cheaper than `windows-latest` for pure Vitest + cargo test work |
 | Build jobs use `needs: [test]` | Failed tests abort the pipeline before any expensive Tauri compilation begins |
+| Linux CI installs GTK/WebKit system libs before Rust tests | `cargo test --lib` on ubuntu still compiles Tauri crate dependencies that link against `glib-2.0`, `libssl`, `librsvg2`, and `libayatana-appindicator3` |
+| CI uses `cargo test --lib` not `cargo test` | `cargo test` without `--lib` also compiles the binary target, which requires a display server — `--lib` tests the library crate only, covering all repo/model/command logic |
 
 ---
 

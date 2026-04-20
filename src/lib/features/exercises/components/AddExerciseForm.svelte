@@ -43,6 +43,19 @@
 	}
 </script>
 
+<style>
+	@reference "tailwindcss";
+	.form-input {
+		@apply h-11 w-full rounded-lg bg-zinc-900 px-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500;
+	}
+	.btn-cancel {
+		@apply flex-1 rounded-xl border border-zinc-700 py-3 text-sm text-zinc-300;
+	}
+	.btn-save {
+		@apply flex-1 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white;
+	}
+</style>
+
 <div class="rounded-xl bg-zinc-800 p-4">
 	<div class="flex flex-col gap-3">
 		<div>
@@ -55,18 +68,14 @@
 				bind:value={name}
 				placeholder="e.g. Cable Fly"
 				maxlength={50}
-				class="h-11 w-full rounded-lg bg-zinc-900 px-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				class="form-input"
 			/>
 		</div>
 		<div>
 			<label for="muscle-group" class="mb-1 block text-xs font-medium text-zinc-400">
 				Muscle Group
 			</label>
-			<select
-				id="muscle-group"
-				bind:value={muscleGroup}
-				class="h-11 w-full rounded-lg bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-			>
+			<select id="muscle-group" bind:value={muscleGroup} class="form-input">
 				{#each MUSCLE_GROUPS as g (g.value)}
 					<option value={g.value}>{g.label}</option>
 				{/each}
@@ -76,18 +85,8 @@
 			<p role="alert" class="text-xs text-red-400">{displayError}</p>
 		{/if}
 		<div class="flex gap-3">
-			<button
-				onclick={onCancel}
-				class="flex-1 rounded-xl border border-zinc-700 py-3 text-sm text-zinc-300"
-			>
-				Cancel
-			</button>
-			<button
-				onclick={handleSave}
-				class="flex-1 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white"
-			>
-				Save
-			</button>
+			<button onclick={onCancel} class="btn-cancel">Cancel</button>
+			<button onclick={handleSave} class="btn-save">Save</button>
 		</div>
 	</div>
 </div>

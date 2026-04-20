@@ -345,8 +345,10 @@ Full Body: Burpee, Clean and Press, Turkish Get-Up
 
 ### Styling
 
-- **Tailwind CSS only**. No custom CSS files, no `<style>` blocks in components.
-- Exception: Tailwind `@apply` in a single `app.css` for truly global resets if needed, and for setting the root font size from the font scale setting.
+- **Tailwind CSS** is the primary styling system.
+- **Component `<style>` blocks are allowed** — this is the Svelte-idiomatic approach. Use `@apply` inside a component's `<style>` block to give repeated Tailwind class groups a semantic name local to that component (e.g., `.step-btn`, `.exercise-row`). Scoping is automatic. Always start the block with `@reference "tailwindcss";` (Tailwind v4 requires this for `@apply` in isolated component styles).
+- **No arbitrary CSS** in `<style>` blocks — only `@apply` with Tailwind utilities. Do not write raw `color:`, `padding:`, `font-size:` etc.
+- **`app.css`** is for truly global utilities that are needed across multiple unrelated components (e.g., `.focus-ring`, `.rep-pulse` keyframe). Keep it small.
 - Use Tailwind's design tokens for spacing, colors, fonts — don't use arbitrary values like `p-[13px]` unless no token fits.
 - Dark mode: design for dark mode first (gym context — dark UI is easier on the eyes mid-workout). Support light mode as secondary.
 - **All sizing in `rem`**: Font sizes, paddings, margins, gap, min-height on touch targets — all must use `rem` so they scale when the root font size changes. The only exception is borders and outlines which can use `px`.
@@ -1079,8 +1081,11 @@ fn it_works() { ... }
 ### Running Rust Tests
 
 ```bash
-# Run all Rust tests
+# Run all Rust tests (local development — full compile)
 cd src-tauri && cargo test
+
+# CI environments (ubuntu-latest) — library tests only, avoids needing a display server
+cd src-tauri && cargo test --lib
 
 # Run tests for a specific module
 cargo test repo::workout_repo
@@ -1092,6 +1097,8 @@ cargo test save_set_with_zero_reps_returns_error
 cargo test -- --nocapture
 ```
 
+> **CI note**: On Linux CI runners, `cargo test` (without `--lib`) attempts to compile and link the full Tauri binary, which requires GTK/WebKit native libraries (`libwebkit2gtk-4.1-dev`, `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev`). Both `ci.yml` and `release.yml` install these via `apt-get` before running `cargo test --lib`. When running Rust tests locally on Windows or macOS, the plain `cargo test` command works without this step.
+
 ---
 
 ## What NOT To Do
@@ -1100,6 +1107,8 @@ These are common agent failure modes. Do not:
 
 - ❌ Install additional state management libraries (no Redux, no Zustand, no Pinia)
 - ❌ Install a CSS framework besides Tailwind (no Bootstrap, no Material UI)
+- ❌ Write raw CSS properties in `<style>` blocks — use `@apply` with Tailwind utilities only
+- ❌ Add arbitrary CSS to `app.css` — it's for global Tailwind utilities only (`.focus-ring`, keyframes)
 - ❌ Install an ORM — use raw SQL with Tauri's SQLite plugin or simple JSON storage
 - ❌ Create global mutable state outside of Svelte stores
 - ❌ Put Tauri `invoke()` calls directly in components — always go through a service
@@ -1148,7 +1157,7 @@ After every change, verify:
 
 **Backend checks (if any Rust code changed):**
 4. `cd src-tauri && cargo check` — compiles with no errors
-5. `cd src-tauri && cargo test` — all tests pass
+5. `cd src-tauri && cargo test` — all tests pass (use `cargo test --lib` on Linux CI)
 6. `cd src-tauri && cargo clippy` — no warnings (Rust linter)
 
 **Structure checks:**

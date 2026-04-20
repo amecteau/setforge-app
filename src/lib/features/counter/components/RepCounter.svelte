@@ -38,34 +38,38 @@
 	</div>
 
 	<!-- Giant tap area — the primary counting input -->
-	<button
-		onclick={handleIncrement}
-		aria-label="Tap to count"
-		class="flex min-h-[8rem] w-full items-center justify-center rounded-xl active:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-	>
-		<span
-			aria-hidden="true"
-			class="text-[5.5rem] font-bold leading-none text-blue-400 {pulsing ? 'rep-pulse' : ''}"
-		>
+	<button onclick={handleIncrement} aria-label="Tap to count" class="tap-area focus-ring">
+		<span aria-hidden="true" class="rep-count {pulsing ? 'rep-pulse' : ''}">
 			{repCount}
 		</span>
 	</button>
 
 	<!-- +/− buttons inside the card -->
 	<div class="flex items-center justify-between px-4">
-		<button
-			onclick={onDecrement}
-			aria-label="Decrement"
-			class="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-800 text-2xl font-light text-white active:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-		>
+		<button onclick={onDecrement} aria-label="Decrement" class="round-btn neutral focus-ring">
 			−
 		</button>
-		<button
-			onclick={handleIncrement}
-			aria-label="Increment"
-			class="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-2xl font-light text-white active:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-		>
+		<button onclick={handleIncrement} aria-label="Increment" class="round-btn primary focus-ring">
 			+
 		</button>
 	</div>
 </div>
+
+<style>
+	@reference "tailwindcss";
+	.tap-area {
+		@apply flex min-h-[8rem] w-full items-center justify-center rounded-xl active:bg-zinc-800;
+	}
+	.rep-count {
+		@apply text-[5.5rem] font-bold leading-none text-blue-400;
+	}
+	.round-btn {
+		@apply flex h-14 w-14 items-center justify-center rounded-full text-2xl font-light text-white;
+	}
+	.round-btn.neutral {
+		@apply bg-zinc-800 active:bg-zinc-700;
+	}
+	.round-btn.primary {
+		@apply bg-blue-600 active:bg-blue-700;
+	}
+</style>

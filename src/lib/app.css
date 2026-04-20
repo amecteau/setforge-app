@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Global focus ring — applied to all interactive elements via class="focus-ring" */
+@reference "tailwindcss";
+.focus-ring {
+	@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400;
+}
+
 @keyframes rep-pulse {
 	0% {
 		transform: scale(1);

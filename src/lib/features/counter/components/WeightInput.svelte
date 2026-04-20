@@ -35,12 +35,12 @@
 			oninput={handleInput}
 			aria-label="Weight"
 			placeholder="—"
-			class="w-full bg-transparent text-center text-[5rem] font-bold leading-none text-blue-400 placeholder-zinc-700 focus:outline-none"
+			class="weight-display"
 		/>
 		<button
 			onclick={() => onUnitChange(unit === 'lb' ? 'kg' : 'lb')}
 			aria-label={`Unit: ${unit}, tap to toggle`}
-			class="rounded px-3 py-1 text-sm font-semibold text-zinc-400 active:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+			class="unit-toggle focus-ring"
 		>
 			{unit}
 		</button>
@@ -48,19 +48,24 @@
 
 	<!-- Step buttons at the bottom, mirroring RepCounter +/− layout -->
 	<div class="flex items-center justify-between px-4">
-		<button
-			onclick={() => onAdjust(-step)}
-			aria-label={`-${step}`}
-			class="flex h-14 min-w-14 items-center justify-center rounded-full bg-zinc-800 px-3 text-xl font-medium text-white active:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-		>
+		<button onclick={() => onAdjust(-step)} aria-label={`-${step}`} class="step-btn focus-ring">
 			−{step}
 		</button>
-		<button
-			onclick={() => onAdjust(step)}
-			aria-label={`+${step}`}
-			class="flex h-14 min-w-14 items-center justify-center rounded-full bg-zinc-800 px-3 text-xl font-medium text-white active:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-		>
+		<button onclick={() => onAdjust(step)} aria-label={`+${step}`} class="step-btn focus-ring">
 			+{step}
 		</button>
 	</div>
 </div>
+
+<style>
+	@reference "tailwindcss";
+	.weight-display {
+		@apply w-full bg-transparent text-center text-[5rem] font-bold leading-none text-blue-400 placeholder-zinc-700 focus:outline-none;
+	}
+	.unit-toggle {
+		@apply rounded px-3 py-1 text-sm font-semibold text-zinc-400 active:text-zinc-200;
+	}
+	.step-btn {
+		@apply flex h-14 min-w-14 items-center justify-center rounded-full bg-zinc-800 px-3 text-xl font-medium text-white active:bg-zinc-700;
+	}
+</style>
