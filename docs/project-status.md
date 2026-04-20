@@ -175,9 +175,16 @@
 | `actions/upload-artifact@v4` | Pass build outputs between jobs |
 | `softprops/action-gh-release@v2` | Create GitHub Release + attach files |
 
-### Trigger
+### Workflows
 
-Workflow runs on `v*` tag push only. To release: `git tag v0.1.0 && git push origin v0.1.0`.
+| Workflow | Trigger | Jobs |
+|---|---|---|
+| `ci.yml` | Push to any branch (not tags) | `test` only |
+| `release.yml` | `v*` tag push | `test` → `build-windows` + `build-android` → `release` |
+
+`ci.yml` uses `branches: ['**']` so tag pushes don't trigger it — no double test run. `release.yml` always re-runs its own `test` job so a direct tag push can't bypass tests.
+
+To release: `git tag v0.1.0 && git push origin v0.1.0`.
 
 | # | Task | Status | Notes |
 |---|---|---|---|
@@ -194,6 +201,8 @@ Workflow runs on `v*` tag push only. To release: `git tag v0.1.0 && git push ori
 | 6.11 | Add release badge to README | ✅ | Rewrote default SvelteKit README with project info, shields.io release badge, download table, and release instructions. |
 | 6.12 | Android APK signing — Step 1: debug build | 🔄 | Change CI step to `npx tauri android build --apk --debug` to confirm APK installs on device (debug builds are auto-signed). Verifies signing is the root cause of "App not installed" on Samsung S25. |
 | 6.13 | Android APK signing — Step 2: release keystore | ⬜ | Generate keystore locally: `keytool -genkey -v -keystore release.keystore -alias setforge -keyalg RSA -keysize 2048 -validity 10000`. Add 4 GitHub secrets: `ANDROID_KEYSTORE` (base64), `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`. Decode keystore in CI before build step. Configure signing block in `src-tauri/gen/android/app/build.gradle`. Switch workflow back to release APK. |
+| 6.14 | Add unit test gate to `release.yml` | ✅ | New `test` job (ubuntu-latest) runs `npx vitest run` + `cargo test`. Both build jobs use `needs: [test]` so failed tests abort before any Tauri compilation. |
+| 6.15 | Create `ci.yml` for branch push tests | ✅ | Separate workflow triggers on `branches: ['**']` (not tags) to avoid double test run on tag push. Runs same test suite as `release.yml` test job. |
 
 **Phase 6 exit criteria**: Pushing a `v*` tag produces a GitHub Release with a Windows installer and Android APK attached, downloadable via a public link on the repo Releases page.
 

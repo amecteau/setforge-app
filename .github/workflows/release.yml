@@ -9,8 +9,31 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # ── Tests ──────────────────────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - uses: actions/setup-node@v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Frontend tests
+        run: npx vitest run
+
+      - name: Rust tests
+        run: cd src-tauri && cargo test
+
   # ── Windows ────────────────────────────────────────────────────────────────
   build-windows:
+    needs: [test]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6.0.2
@@ -36,6 +59,7 @@ jobs:
 
   # ── Android ────────────────────────────────────────────────────────────────
   build-android:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2

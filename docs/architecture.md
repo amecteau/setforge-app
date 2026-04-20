@@ -210,6 +210,50 @@ erDiagram
 
 ---
 
+## CI/CD Pipeline
+
+Two GitHub Actions workflows govern quality and releases. Both live in `.github/workflows/`.
+
+### Workflow: `ci.yml` — Continuous Integration
+
+Triggers on **every push to any branch** (not tags). Runs unit tests only.
+
+```
+push to branch
+    └── test (ubuntu-latest)
+            ├── npm ci
+            ├── npx vitest run        ← frontend tests
+            └── cd src-tauri && cargo test  ← Rust tests
+```
+
+Purpose: catch regressions fast on every commit. ubuntu-latest is the fastest and cheapest runner for pure test work.
+
+### Workflow: `release.yml` — Release Pipeline
+
+Triggers on **`v*` tag pushes only**. The `test` job acts as a gate: build jobs only start if tests pass.
+
+```
+push v* tag
+    └── test (ubuntu-latest)          ← same suite as ci.yml
+            ├── build-windows (windows-latest)
+            │       └── npx tauri build → .msi + .exe
+            └── build-android (ubuntu-latest)
+                    └── npx tauri android build --apk
+                            └── release
+                                    └── Create GitHub Release (attaches all artifacts)
+```
+
+### Pipeline Rules
+
+| Rule | Reason |
+|---|---|
+| Tags skip `ci.yml` (`branches: ['**']` filter) | Prevents double test run when a tag is pushed |
+| `release.yml` always re-runs its own `test` job | A direct tag push (bypassing a branch push) still can't skip tests |
+| Tests run on `ubuntu-latest` in both workflows | ubuntu is faster and cheaper than `windows-latest` for pure Vitest + cargo test work |
+| Build jobs use `needs: [test]` | Failed tests abort the pipeline before any expensive Tauri compilation begins |
+
+---
+
 ## Key Architectural Constraints
 
 | Rule | Where enforced |
