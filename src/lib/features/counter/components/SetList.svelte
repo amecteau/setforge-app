@@ -20,6 +20,20 @@
 		if (set.weight === null) return 'bodyweight';
 		return `${set.weight} ${set.unit}`;
 	}
+
+	const grouped = $derived.by(() => {
+		const order: string[] = [];
+		const map = new Map<string, { set: WorkoutSet; flatIndex: number }[]>();
+		for (let i = 0; i < sets.length; i++) {
+			const s = sets[i];
+			if (!map.has(s.exerciseId)) {
+				order.push(s.exerciseId);
+				map.set(s.exerciseId, []);
+			}
+			map.get(s.exerciseId)!.push({ set: s, flatIndex: i });
+		}
+		return order.map((id) => ({ exerciseId: id, items: map.get(id)! }));
+	});
 </script>
 
 <style>
@@ -30,24 +44,35 @@
 	.undo-btn {
 		@apply ml-3 flex min-h-[2.75rem] min-w-[3rem] items-center justify-center rounded px-3 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-white active:bg-zinc-700;
 	}
+	.group-heading {
+		@apply text-xs font-semibold uppercase tracking-wider text-zinc-500;
+	}
 </style>
 
 {#if sets.length > 0}
-	<section aria-label="Previous sets" class="flex flex-col gap-1">
+	<section aria-label="Previous sets" class="flex flex-col gap-3">
 		<h2 class="text-xs font-medium uppercase tracking-wider text-zinc-500">Previous Sets</h2>
-		<ol class="flex flex-col gap-1">
-			{#each sets as set, i (set.id)}
-				<li class="set-row">
-					<span>
-						<span class="text-zinc-500">Set {i + 1}:</span>
-						{set.reps} reps @ {formatWeight(set)}
-						<span class="ml-1 text-zinc-600 text-xs">{getExerciseName(set.exerciseId)}</span>
-					</span>
-					<button onclick={() => onUndo(i)} aria-label={`Undo set ${i + 1}`} class="undo-btn">
-						Undo
-					</button>
-				</li>
-			{/each}
-		</ol>
+		{#each grouped as group (group.exerciseId)}
+			<div class="flex flex-col gap-1">
+				<h3 class="group-heading px-1">{getExerciseName(group.exerciseId)}</h3>
+				<ol class="flex flex-col gap-1">
+					{#each group.items as { set, flatIndex }, i (set.id)}
+						<li class="set-row">
+							<span>
+								<span class="text-zinc-500">Set {i + 1}:</span>
+								{set.reps} reps @ {formatWeight(set)}
+							</span>
+							<button
+								onclick={() => onUndo(flatIndex)}
+								aria-label={`Undo set ${i + 1}`}
+								class="undo-btn"
+							>
+								Undo
+							</button>
+						</li>
+					{/each}
+				</ol>
+			</div>
+		{/each}
 	</section>
 {/if}
