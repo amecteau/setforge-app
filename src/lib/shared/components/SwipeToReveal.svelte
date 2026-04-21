@@ -25,6 +25,7 @@
 	function onPointerDown(e: PointerEvent) {
 		startX = e.clientX;
 		dragging = true;
+		(e.currentTarget as Element).setPointerCapture?.(e.pointerId);
 	}
 
 	function onPointerMove(e: PointerEvent) {

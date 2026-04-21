@@ -100,7 +100,7 @@
 		@apply flex h-12 w-full items-center rounded-lg bg-zinc-900 px-4 text-left text-sm text-white hover:bg-zinc-800 active:bg-zinc-700;
 	}
 	.custom-icon {
-		@apply ml-auto text-zinc-500;
+		@apply ml-2 text-zinc-500;
 	}
 </style>
 
