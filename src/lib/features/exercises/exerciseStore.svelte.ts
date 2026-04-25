@@ -56,7 +56,7 @@ export function createExerciseStore() {
 				customExercises = customExercises.filter((e) => e.id !== id);
 				return { success: true };
 			} catch (e) {
-				return { success: false, error: e instanceof Error ? e.message : 'Failed to delete exercise' };
+				return { success: false, error: e instanceof Error ? e.message : 'Failed to delete, exercise in use' };
 			}
 		},
 
