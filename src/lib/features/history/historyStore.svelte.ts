@@ -1,4 +1,5 @@
 import type { Workout } from '$lib/shared/types/workout.js';
+import type { StoreResult } from '$lib/shared/types/common.js';
 import * as historyService from './history.service.js';
 
 export function createHistoryStore() {
@@ -22,10 +23,15 @@ export function createHistoryStore() {
 			expandedId = expandedId === id ? null : id;
 		},
 
-		async deleteWorkout(id: string) {
-			await historyService.deleteWorkout(id);
-			workouts = workouts.filter((w) => w.id !== id);
-			if (expandedId === id) expandedId = null;
+		async deleteWorkout(id: string): Promise<StoreResult> {
+			try {
+				await historyService.deleteWorkout(id);
+				workouts = workouts.filter((w) => w.id !== id);
+				if (expandedId === id) expandedId = null;
+				return { success: true };
+			} catch (e) {
+				return { success: false, error: e instanceof Error ? e.message : 'Failed to delete workout' };
+			}
 		}
 	};
 }

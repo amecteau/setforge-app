@@ -317,9 +317,9 @@ const MIGRATIONS: &[(u32, &str)] = &[
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 8C.1 | `historyStore.deleteWorkout` returns `StoreResult`; `WorkoutCard` / history page shows inline error on failure | ⬜ | Currently fire-and-forget |
-| 8C.2 | `SetList.getExerciseName` fallback: `?? 'Unknown Exercise'` instead of `?? exerciseId` | ⬜ | Defensive display for any existing DB rows that reference deleted exercises |
-| 8C.3 | `SetList` test: renders "Unknown Exercise" when exercise ID has no match in prop | ⬜ | |
+| 8C.1 | `historyStore.deleteWorkout` returns `StoreResult`; `WorkoutCard` / history page shows inline error on failure | ✅ | `deleteError` state with 3s auto-dismiss; `WorkoutCard.onDelete` accepts `() => void \| Promise<void>` |
+| 8C.2 | `SetList.getExerciseName` fallback: `?? 'Unknown Exercise'` instead of `?? exerciseId` | ✅ | Defensive display for any existing DB rows that reference deleted exercises |
+| 8C.3 | `SetList` test: renders "Unknown Exercise" when exercise ID has no match in prop | ✅ | |
 
 **Phase 8 exit criteria**: Deleting a custom exercise that has workout history is blocked with a clear error message. Undo removes the set from SQLite. All destructive actions (undo, exercise delete, workout delete) surface errors to the user. All sensors pass.
 
@@ -354,7 +354,7 @@ const MIGRATIONS: &[(u32, &str)] = &[
 
 | Issue | Status | Decision/Resolution |
 |---|---|---|
-| GUID shown as exercise header in SetList | 🔄 Phase 8C.2 | Root cause: `getExerciseName` falls back to raw UUID when exercise deleted mid-workout. Fix: fallback to "Unknown Exercise"; guard deletion in 8A. |
+| GUID shown as exercise header in SetList | ✅ Phase 8C.2 | `getExerciseName` now falls back to "Unknown Exercise" instead of raw UUID. Guard deletion handled in 8A. |
 | Undo doesn't persist — sets return on resume | ✅ Phase 8B | Fixed: `removeSet(setId)` deletes from SQLite before removing from local state. |
 | Custom exercise can be deleted while referenced in active/historical sets | ✅ Phase 8A | `exercise_has_sets` guard blocks delete; error surfaced to UI; exercise name stays visible until result confirmed. |
 

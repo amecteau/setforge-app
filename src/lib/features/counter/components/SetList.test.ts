@@ -149,4 +149,20 @@ describe('SetList', () => {
 		expect(benchSection.textContent).toContain('Set 1');
 		expect(benchSection.textContent).toContain('Set 2');
 	});
+
+	it('renders "Unknown Exercise" when exercise id has no match in exercises prop', () => {
+		const orphanSet: WorkoutSet[] = [
+			{
+				id: 'orphan',
+				exerciseId: 'deleted-exercise-id',
+				reps: 5,
+				weight: 100,
+				unit: 'lb',
+				timestamp: '2026-04-10T10:00:00Z',
+				notes: ''
+			}
+		];
+		render(SetList, { sets: orphanSet, exercises, onUndo: vi.fn() });
+		expect(screen.getByRole('heading', { name: 'Unknown Exercise' })).toBeInTheDocument();
+	});
 });

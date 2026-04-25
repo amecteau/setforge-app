@@ -16,7 +16,7 @@
 		exercises: Exercise[];
 		expanded: boolean;
 		onToggle: () => void;
-		onDelete: () => void;
+		onDelete: () => void | Promise<void>;
 	} = $props();
 
 	let showConfirm = $state(false);
@@ -94,9 +94,9 @@
 	<ConfirmDialog
 		message={confirmMessage}
 		confirmLabel="Delete"
-		onConfirm={() => {
+		onConfirm={async () => {
 			showConfirm = false;
-			onDelete();
+			await onDelete();
 		}}
 		onCancel={() => (showConfirm = false)}
 	/>

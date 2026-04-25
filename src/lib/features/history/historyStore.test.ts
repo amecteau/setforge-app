@@ -88,4 +88,22 @@ describe('historyStore', () => {
 		await store.deleteWorkout('w1');
 		expect(historyService.deleteWorkout).toHaveBeenCalledWith('w1');
 	});
+
+	it('deleteWorkout returns success: true on success', async () => {
+		vi.mocked(historyService.getWorkouts).mockResolvedValueOnce([w1]);
+		const store = createHistoryStore();
+		await store.load();
+		const result = await store.deleteWorkout('w1');
+		expect(result).toEqual({ success: true });
+	});
+
+	it('deleteWorkout does not mutate store and returns error when service throws', async () => {
+		vi.mocked(historyService.getWorkouts).mockResolvedValueOnce([w1]);
+		vi.mocked(historyService.deleteWorkout).mockRejectedValueOnce(new Error('DB error'));
+		const store = createHistoryStore();
+		await store.load();
+		const result = await store.deleteWorkout('w1');
+		expect(result).toEqual({ success: false, error: 'DB error' });
+		expect(store.workouts).toHaveLength(1);
+	});
 });

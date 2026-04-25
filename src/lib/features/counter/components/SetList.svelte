@@ -13,7 +13,7 @@
 	} = $props();
 
 	function getExerciseName(exerciseId: string): string {
-		return exercises.find((e) => e.id === exerciseId)?.name ?? exerciseId;
+		return exercises.find((e) => e.id === exerciseId)?.name ?? 'Unknown Exercise';
 	}
 
 	function formatWeight(set: WorkoutSet): string {

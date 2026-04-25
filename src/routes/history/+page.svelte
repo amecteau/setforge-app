@@ -3,10 +3,22 @@
 	import { exerciseStore } from '$lib/features/exercises/exerciseStore.svelte.js';
 	import WorkoutCard from '$lib/features/history/components/WorkoutCard.svelte';
 
+	let deleteError = $state<string | null>(null);
+
 	$effect(() => {
 		historyStore.load();
 		exerciseStore.loadCustomExercises();
 	});
+
+	async function handleDelete(id: string): Promise<void> {
+		const result = await historyStore.deleteWorkout(id);
+		if (!result.success) {
+			deleteError = result.error ?? 'Failed to delete workout';
+			setTimeout(() => {
+				deleteError = null;
+			}, 3000);
+		}
+	}
 </script>
 
 {#if historyStore.workouts.length === 0}
@@ -23,8 +35,12 @@
 				exercises={exerciseStore.allExercises}
 				expanded={historyStore.expandedId === workout.id}
 				onToggle={() => historyStore.toggleExpand(workout.id)}
-				onDelete={() => historyStore.deleteWorkout(workout.id)}
+				onDelete={() => handleDelete(workout.id)}
 			/>
 		{/each}
 	</div>
+
+	{#if deleteError}
+		<p role="alert" class="px-4 text-center text-sm text-red-400">{deleteError}</p>
+	{/if}
 {/if}
