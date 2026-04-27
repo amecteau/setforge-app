@@ -13,7 +13,7 @@ Gym rep counter desktop app. Tauri v2 (Rust) + SvelteKit (TypeScript). Single us
 
 ## Before Every Task
 - Read `.claude/AGENTS.md` for architecture rules and conventions
-- Read `docs/project-status.md` to know where we are
+- Read `docs/project-status.md` to know where we are. If the task belongs to a major feature, read its file under `docs/features/[name]-status.md` for the detailed phase/task list.
 - Read `docs/ui-spec.md` before any UI work
 
 ## Critical Rules (these get violated most often)
@@ -40,8 +40,12 @@ cd src-tauri && cargo check && cargo test && cargo clippy
 Fix all failures before moving on.
 
 ## Status Tracking
-Update `docs/project-status.md` after completing each task (⬜→🔄→✅).
-Log any harness changes in the Steering Log at the bottom of that file.
+Core build progress lives in `docs/project-status.md`. Major-feature progress lives in `docs/features/[name]-status.md` (one file per feature).
+
+- **Core-build task** (Phases 1-8): update `docs/project-status.md` (⬜→🔄→✅).
+- **Feature task** (anything tracked in `docs/features/`): update the per-feature file. Do **not** also duplicate the row into `docs/project-status.md` — the project-level file just lists the feature in its "Features" section and points to the per-feature file.
+
+Update statuses after each task — do not batch. Log any harness changes (changes to AGENTS.md, ui-spec.md, eslint rules, etc.) in the Steering Log at the bottom of `docs/project-status.md`. Per-feature files have their own Steering Log for decisions scoped to that feature only.
 
 ## Do Not
 - Add features not in the UI spec without asking

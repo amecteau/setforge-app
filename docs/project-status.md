@@ -200,7 +200,7 @@ To release: `git tag v0.1.0 && git push origin v0.1.0`.
 | 6.10 | Test workflow end-to-end | ✅ | Push `v0.1.0` tag. Verify both artifacts appear on GitHub Releases page. |
 | 6.11 | Add release badge to README | ✅ | Rewrote default SvelteKit README with project info, shields.io release badge, download table, and release instructions. |
 | 6.12 | Android APK signing — Step 1: debug build | ✅ | Change CI step to `npx tauri android build --apk --debug` to confirm APK installs on device (debug builds are auto-signed). Verifies signing is the root cause of "App not installed" on Samsung S25. |
-| 6.13 | Android APK signing — Step 2: release keystore | ⬜ | Generate keystore locally: `keytool -genkey -v -keystore release.keystore -alias setforge -keyalg RSA -keysize 2048 -validity 10000`. Add 4 GitHub secrets: `ANDROID_KEYSTORE` (base64), `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`. Decode keystore in CI before build step. Configure signing block in `src-tauri/gen/android/app/build.gradle`. Switch workflow back to release APK. |
+| 6.13 | Android APK signing — Step 2: release keystore | ✅ | Generated keystore locally; added 4 GitHub secrets (`ANDROID_KEYSTORE`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `ANDROID_STORE_PASSWORD`). CI now builds an unsigned release APK and signs it via `apksigner` with passwords read from env vars (`--ks-pass env:`, `--key-pass env:`) — secrets never written to disk. Debug APK and signed release APK both attached to release. |
 | 6.14 | Add unit test gate to `release.yml` | ✅ | New `test` job (ubuntu-latest) runs `npx vitest run` + `cargo test`. Both build jobs use `needs: [test]` so failed tests abort before any Tauri compilation. |
 | 6.15 | Create `ci.yml` for branch push tests | ✅ | Separate workflow triggers on `branches: ['**']` (not tags) to avoid double test run on tag push. Runs same test suite as `release.yml` test job. |
 
@@ -338,6 +338,22 @@ const MIGRATIONS: &[(u32, &str)] = &[
 
 ---
 
+## Features
+
+> Major features tracked in their own status file under [docs/features/](features/). The phase tables above are for the core build only; once the app is shipping, additive feature work lives in per-feature files so this document stays a chronological project history rather than an ever-growing TODO list.
+>
+> A feature gets its own status file when:
+> - It introduces a new feature folder (`src/lib/features/[name]/`), OR
+> - It spans multiple components AND requires a documented architecture (entries in [AGENTS.md](../.claude/AGENTS.md)) AND a UI mockup (entry in [ui-spec.md](ui-spec.md)).
+>
+> Smaller enhancements stay in the **Future Features** table below.
+
+| Feature | Status file | Current state |
+|---|---|---|
+| Multi-language support (English + Spanish) | [features/multilanguage-status.md](features/multilanguage-status.md) | Phase ML.1 — not started |
+
+---
+
 ## Future Features
 
 > Ideas and deferred enhancements to revisit after core phases are complete. Not committed to the UI spec.
@@ -373,3 +389,4 @@ const MIGRATIONS: &[(u32, &str)] = &[
 | 2026-04-10 | Added ESLint rules: no-undef off for TS files; prefer-svelte-reactivity off; no-navigation-without-resolve off | no-undef is redundant in TS; prefer-svelte-reactivity false-positives on new Date().toISOString(); nav rule not applicable without base path |
 | 2026-04-10 | Added ESLint parser config for `*.svelte.ts` files (TypeScript parser) | Default ESLint config treats .svelte.ts as plain JS, failing on import type syntax |
 | 2026-04-10 | Use `$app/state` not `$app/stores` for page; access as `page.url.pathname` not `$page` | `$app/stores` deprecated in SvelteKit Svelte 5 mode; state object is not a store |
+| 2026-04-27 | Introduced `docs/features/[name]-status.md` per-feature status files; added "Features" section to project-status.md as the index | Phase tables in project-status.md are scoped to the core build. Major features (new feature folders or spanning multiple components with a documented architecture) get their own file so feature work doesn't bloat this document. |

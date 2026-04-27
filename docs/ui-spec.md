@@ -18,11 +18,12 @@ This document describes every screen, interaction, and user flow in the app. It 
 
 ## Screen Inventory
 
-The app has three screens accessible via a bottom or side navigation:
+The app has three screens accessible via the bottom navigation, plus a **Settings** screen reached via the gear icon in the top bar:
 
 1. **Counter** (main screen, default on launch)
 2. **History** (past workouts)
 3. **Exercises** (manage exercise list)
+4. **Settings** (preferences — reached via the gear icon in the top bar, not the bottom nav)
 
 ---
 
@@ -36,7 +37,7 @@ The three most important pieces of information — exercise, weight, and reps �
 
 ```
 ┌──────────────────────────────┐
-│  SetForge             [A−A+] │  ← Top bar: title, font scale
+│  SetForge        [A−A+] [⚙]  │  ← Top bar: title, font scale, settings
 ├──────────────────────────────┤
 │                              │
 │  ┌────────────────────────┐  │
@@ -256,6 +257,62 @@ Tapping "+ Add Custom Exercise" opens an inline form or modal:
 
 ---
 
+## Screen 4: Settings
+
+Reached by tapping the gear icon (⚙) in the top bar. Hosts user preferences. Not part of the bottom navigation — it's a peripheral screen, not part of the workout flow.
+
+### Layout
+
+```
+┌──────────────────────────────┐
+│  [← Back]      Settings      │  ← Top bar: back link, title
+├──────────────────────────────┤
+│                              │
+│  LANGUAGE ───────────────    │
+│                              │
+│  (●) Match system (English)  │  ← Default. Persists "system",
+│  ( ) English                 │     resolves to OS locale at launch.
+│  ( ) Español                 │     Parens show the detected language
+│                              │     when "Match system" is selected.
+│                              │
+│  WEIGHT UNIT ────────────    │
+│                              │
+│  ( ) Kilograms (kg)          │  (Future — not in initial i18n build)
+│  (●) Pounds (lb)             │
+│                              │
+│  ABOUT ──────────────────    │
+│                              │
+│  SetForge v0.0.10            │
+│                              │
+├──────────────────────────────┤
+│  [Counter]  [History]  [Ex.] │  ← Bottom nav still visible
+└──────────────────────────────┘
+```
+
+### Interactions
+
+| Action | Input | Result |
+|---|---|---|
+| Change language | Tap a radio option | Persists choice; UI re-renders in the chosen language immediately. |
+| Match system | Tap "Match system" | Persists the literal value `system`. On every launch the app re-detects the OS locale (`navigator.language`) and uses that. The current resolution is shown in parens next to the option. |
+| Return | Tap back link, or any bottom-nav tab | Returns to the previous screen. |
+
+### Behaviour
+
+- The language preference is stored as one of: `system`, `en`, `es`.
+- The default on first launch (before any setting is saved) is **Match system**.
+- When set to `system`, the app re-evaluates the OS locale at every launch — changing your phone's language between sessions will switch the app's language.
+- Supported languages are **English** and **Spanish** only. If the OS reports any other locale and the preference is `system`, the app falls back to **English**.
+- Custom exercise names entered by the user are not translated — they appear exactly as typed regardless of language.
+- Built-in exercise names and muscle group labels are translated.
+- Dates in the History screen are formatted using `Intl.DateTimeFormat` with the active locale; ISO-8601 strings remain in storage.
+
+### Validation Rules
+
+- The radio group always has exactly one selection.
+
+---
+
 ## Navigation
 
 ### Bottom Navigation Bar
@@ -269,8 +326,9 @@ Active tab is highlighted. Tapping Counter always goes to the current workout st
 
 ### Top Bar
 
-- App title: "SetForge"
-- Optional hamburger menu for settings (Phase 5+, not in initial build)
+- App title: "SetForge" (left)
+- Font scale control (`A−` / `A+`) (right)
+- Settings gear icon (⚙) (right of font scale) — links to the Settings screen. `aria-label="Settings"`. Touch target ≥ `3rem`.
 
 ---
 
@@ -406,6 +464,5 @@ These features are explicitly excluded from the initial build:
 - Body weight / measurement tracking
 - Charts or graphs (future Phase 4+)
 - Export to CSV/PDF
-- Settings screen (future)
 - Notifications or reminders
 - Music integration

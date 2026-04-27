@@ -11,7 +11,10 @@ A manual rep counting app for weightlifting. Users select an exercise, tap to co
 ### Key Reference Files
 
 - **docs/ui-spec.md** — What the app should do: every screen, interaction, and validation rule. Read before building any UI.
-- **docs/project-status.md** — Where we are: current phase, task-by-task progress, and what's next. Read when the user asks for "status" or "next". Update after completing tasks.
+- **docs/project-status.md** — Where we are on the **core build**: current phase, task-by-task progress, completed milestones, and the index of major features. Read when the user asks for "status" or "next". Update after completing tasks in Phases 1-8.
+- **docs/features/[name]-status.md** — Per-feature status files for major features (e.g. `multilanguage-status.md`). Each tracks its own phases, tasks, exit criteria, and feature-scoped Steering Log. The "Features" section in `docs/project-status.md` is the index. When working on a feature task, update its per-feature file — do not duplicate rows into `project-status.md`.
+
+A feature gets its own status file when it introduces a new feature folder (`src/lib/features/[name]/`), OR spans multiple components AND requires a documented architecture entry in this file AND a UI mockup in `ui-spec.md`. Smaller enhancements stay in the **Future Features** table in `project-status.md`.
 
 ### Slash Commands
 
@@ -85,14 +88,26 @@ src/
 │   │   │   ├── history.service.test.ts
 │   │   │   └── types.ts
 │   │   │
-│   │   └── settings/                 ← Font scale, weight unit prefs
-│   │       ├── components/
-│   │       │   ├── FontScaleControl.svelte  A−/A+ buttons
-│   │       │   └── FontScaleControl.test.ts
-│   │       ├── settingsStore.svelte.ts      User preferences state
-│   │       ├── settingsStore.test.ts
-│   │       ├── settings.service.ts          Tauri calls for persisting prefs
-│   │       └── settings.service.test.ts
+│   │   ├── settings/                 ← Font scale, weight unit, language prefs
+│   │   │   ├── components/
+│   │   │   │   ├── FontScaleControl.svelte  A−/A+ buttons
+│   │   │   │   ├── FontScaleControl.test.ts
+│   │   │   │   ├── LanguageControl.svelte   Language radio group
+│   │   │   │   └── LanguageControl.test.ts
+│   │   │   ├── settingsStore.svelte.ts      User preferences state
+│   │   │   ├── settingsStore.test.ts
+│   │   │   ├── settings.service.ts          Tauri calls for persisting prefs
+│   │   │   └── settings.service.test.ts
+│   │   │
+│   │   └── i18n/                     ← Translation feature (English + Spanish)
+│   │       ├── locales/
+│   │       │   ├── en.ts                    Source-of-truth English dictionary
+│   │       │   └── es.ts                    Spanish dictionary (same keys as en)
+│   │       ├── i18nStore.svelte.ts          Active language + t() function
+│   │       ├── i18nStore.test.ts
+│   │       ├── detectLanguage.ts            navigator.language → 'en' | 'es'
+│   │       ├── detectLanguage.test.ts
+│   │       └── types.ts                     Language, LanguagePreference, TranslationKey
 │   │
 │   ├── shared/                       ← Truly shared code (used by 2+ features)
 │   │   ├── components/
@@ -116,12 +131,14 @@ src/
 │   └── app.css                       ← Global Tailwind imports + root font size
 │
 ├── routes/
-│   ├── +layout.svelte                ← App shell: BottomNav, font scale init
+│   ├── +layout.svelte                ← App shell: BottomNav, header (font scale, gear → /settings)
 │   ├── +page.svelte                  ← Counter screen (composes counter feature)
 │   ├── history/
 │   │   └── +page.svelte              ← History screen (composes history feature)
-│   └── exercises/
-│       └── +page.svelte              ← Exercises screen (composes exercises feature)
+│   ├── exercises/
+│   │   └── +page.svelte              ← Exercises screen (composes exercises feature)
+│   └── settings/
+│       └── +page.svelte              ← Settings screen (gear icon entry point — not in BottomNav)
 ```
 
 ### Feature Folder Rules
@@ -271,11 +288,14 @@ export interface ExerciseHistory {
 
 // settings.ts
 export type FontScale = 'small' | 'medium' | 'large' | 'extraLarge';
+export type Language = 'en' | 'es';
+export type LanguagePreference = 'system' | Language;
 
 export interface UserSettings {
-  fontScale: FontScale;        // default: 'medium'
-  weightUnit: WeightUnit;      // default: 'lb'
+  fontScale: FontScale;             // default: 'medium'
+  weightUnit: WeightUnit;           // default: 'lb'
   lastExerciseId: string | null;
+  language: LanguagePreference;     // default: 'system'
 }
 
 export const FONT_SCALE_VALUES: Record<FontScale, number> = {
@@ -419,6 +439,63 @@ async function saveCurrentSet(): Promise<void> {
 - Never show raw error strings from Rust to the user. Services should sanitize.
 - Use `role="alert"` on error messages so screen readers announce them.
 - Errors are transient — clear them when the user takes a new action.
+
+### Internationalization (i18n)
+
+The app supports **English** and **Spanish**. The architecture is deliberately small — no library, no ICU, no plurals engine. If we ever need plurals or interpolation we'll revisit; until then, simpler is better.
+
+**Source of truth**: `src/lib/features/i18n/locales/en.ts` defines a flat object whose keys (e.g. `'nav.counter'`, `'muscleGroup.chest'`, `'exercise.bench-press'`) are the `TranslationKey` type. Spanish (`es.ts`) is typed `Record<TranslationKey, string>`, so TypeScript fails the build if a key is missing or extra.
+
+**Store**: `i18nStore.svelte.ts` exposes:
+- `language` — the **resolved** active language (`'en' | 'es'`), derived from `preference` and the detected system language.
+- `preference` — the **stored** value (`'system' | 'en' | 'es'`).
+- `setPreference(p)` — updates the preference; the resolved language reactively follows.
+- `t(key: TranslationKey): string` — looks up the active dictionary; on miss returns the key (defensive — avoids blank UI).
+
+**System detection**: `detectLanguage.ts` reads `navigator.language` once at startup. If it starts with `es` → `'es'`. Otherwise → `'en'` (fallback for any unsupported locale). The literal value `'system'` is what gets persisted; resolution happens fresh at every launch so that changing the OS language between sessions switches the app.
+
+**What gets translated**:
+- All static UI strings: nav labels, button text, validation messages, screen titles, settings labels.
+- Built-in muscle group labels (`chest`, `back`, …) via `t('muscleGroup.chest')`.
+- Built-in default exercise names — the `id` (e.g. `bench-press`) is the lookup key: `t(\`exercise.\${exercise.id}\`)`.
+- Dates — `formatDate(iso, locale)` accepts the active locale and uses `Intl.DateTimeFormat`.
+
+**What does NOT get translated**:
+- Custom exercises entered by the user (`exercise.isCustom === true`) — display `exercise.name` as-is.
+- Stored data (DB, ISO timestamps, weight units, IDs). Translation is a display concern only.
+
+**Component contract** (this is the rule that trips most people up):
+- Components do NOT import `i18nStore`. The "components receive data via props" rule applies to translations too.
+- Routes (`+page.svelte`, `+layout.svelte`) call `i18nStore.t(...)` and pass resolved strings into components as props.
+- For long lists where passing every string is impractical (e.g. a muscle-group label map in `ExerciseList`), the route may pass a `labels: Record<MuscleGroup, string>` object built from `t()` calls. The component still receives data; it just receives a map.
+- Exercise picker / list use the same approach: route builds `{ [exerciseId]: localizedName }` from `t()`, passes it down.
+
+**Persistence**:
+- Stored as a string in the `settings` table key/value store under key `language`. Values: `system` | `en` | `es`. No DB migration needed (the table is already key/value).
+- Default when absent (first launch): `system`.
+- The Rust `UserSettings` struct adds `pub language: String` with `#[serde(rename_all = "camelCase")]` already applied.
+
+**Adding a new translation key**:
+1. Add it to `locales/en.ts` first (this updates `TranslationKey`).
+2. TypeScript will fail in `locales/es.ts` until you add the same key with a Spanish value.
+3. Use it via `i18nStore.t('your.new.key')` in a route, then pass the result down as a prop.
+
+**Adding a new language (future, e.g. Portuguese)**:
+1. Extend the `Language` union: `'en' | 'es' | 'pt'`.
+2. Create `locales/pt.ts` typed `Record<TranslationKey, string>`.
+3. Wire it into the `dict = $derived(...)` switch in `i18nStore`.
+4. Update `detectLanguage.ts` with the new locale prefix.
+5. Add a radio option to `LanguageControl.svelte`.
+No other component changes should be needed — that's the test of whether the architecture is right.
+
+**What NOT to do**:
+- ❌ Do not import `i18nStore` inside a component (use props, like every other store).
+- ❌ Do not hardcode user-visible strings in components — every visible string goes through `t()`.
+- ❌ Do not concatenate translated strings (`t('a') + ' ' + t('b')`) — that breaks word order in other languages. Use a single key with the full sentence.
+- ❌ Do not store translated values in the database — the DB stores stable IDs and ISO data only.
+- ❌ Do not add `react-i18next`, `svelte-i18n`, `i18next`, or any other library. The flat-dictionary approach is sufficient at this size.
+- ❌ Do not freeze `system` to the OS language at install time — always resolve fresh at launch.
+- ❌ Do not translate custom exercises (user content stays as-is).
 
 ### Database Schema
 
