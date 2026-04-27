@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 # Rust / Tauri
 src-tauri/target/
 src-tauri/gen/
+
+# Android signing — never commit keystores
+*.keystore

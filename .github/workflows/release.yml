@@ -93,28 +93,78 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Decode keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > keystore.jks
+
       - name: Init Android project
         run: npx tauri android init
 
       - name: Copy Android icons
         run: cp -r src-tauri/icons/android/. src-tauri/gen/android/app/src/main/res/
 
-      - name: Build APK
+      - name: Inject release signing config
+        run: |
+          python3 - <<'EOF'
+          gradle = 'src-tauri/gen/android/app/build.gradle.kts'
+          with open(gradle) as f:
+              content = f.read()
+
+          signing_block = '''
+              signingConfigs {
+                  create("release") {
+                      storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH") ?: "")
+                      storePassword = System.getenv("ANDROID_STORE_PASSWORD") ?: ""
+                      keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: ""
+                      keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+                  }
+              }
+          '''
+
+          content = content.replace('    buildTypes {', signing_block + '    buildTypes {', 1)
+          content = content.replace(
+              'getByName("release") {',
+              'getByName("release") {\n            signingConfig = signingConfigs.getByName("release")',
+              1
+          )
+
+          with open(gradle, 'w') as f:
+              f.write(content)
+          print("Signing config injected")
+          EOF
+
+      - name: Build debug APK
         run: npx tauri android build --apk --debug
 
-      - name: Rename APK
-        run: |
-          APK=$(find src-tauri/gen/android/app/build/outputs/apk -name "*.apk" | head -n 1)
-          mv "$APK" "$(dirname "$APK")/setforge-${{ github.ref_name }}-universal.apk"
+      - name: Build release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: npx tauri android build --apk
 
-      - name: Upload APK
+      - name: Rename APKs
+        run: |
+          DEBUG=$(find src-tauri/gen/android/app/build/outputs/apk -path "*/debug/*.apk" | head -n 1)
+          RELEASE=$(find src-tauri/gen/android/app/build/outputs/apk -path "*/release/*.apk" | head -n 1)
+          mv "$DEBUG" "$(dirname "$DEBUG")/setforge-${{ github.ref_name }}-debug.apk"
+          mv "$RELEASE" "$(dirname "$RELEASE")/setforge-${{ github.ref_name }}-release.apk"
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: android-apk
-          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          name: android-apk-debug
+          path: src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: android-apk-release
+          path: src-tauri/gen/android/app/build/outputs/apk/**/release/*.apk
 
   # ── iOS ──────────────────────────────────────────────────────────────────
   build-ios:
+    if: false
     needs: [test]
     runs-on: macos-latest
     steps:
@@ -154,7 +204,7 @@ jobs:
 
   # ── Release ────────────────────────────────────────────────────────────────
   release:
-    needs: [build-windows, build-android, build-ios]
+    needs: [build-windows, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
